@@ -10,24 +10,34 @@ var d3radar={
    DATASET:null,
    DATASET_NAME:null,
 
+   SVG:null,
    setData:function(dataset,dataset_name){
-    DATASET=dataset;
-    DATASET_NAME=dataset_name;
+    this.DATASET=dataset;
+    this.DATASET_NAME=dataset_name;
     return this
    },
 
-   draw:function(str_input){
+   randomData:function(n){
+      //設隨機亂數
+      this.DATASET=[];
+      for (var i = 0; i <n; i++) {
+            this.DATASET.push(Math.random());
+      };
+      return this
+   },
+
+   show:function(){
+    //按下按鈕的動作
     var w=this.WIDTH,h=this.HEIGHT;
     var padding_left=this.PADDING_LEFT;
     var padding_top=this.PADDING_TOP;
     var radius=this.RADIUS,cx=radius+padding_left,cy=radius+padding_top;
 
-    var dataset=DATASET;
-    var dataname=DATASET_NAME;
+    var dataset=this.DATASET;
+    var dataset_name=this.DATASET_NAME;
 
     var n=dataset.length;
     var data_max=Math.max.apply(null,dataset);
-
     //從d,i取得點座標
     function point_x(d,i){
       return cx+d/data_max*radius*Math.sin(i*2*Math.PI/n);
@@ -37,14 +47,7 @@ var d3radar={
       return cy-d/data_max*radius*Math.cos(i*2*Math.PI/n);
     }
 
-    function points(d,i){
-      var arr=[];
-      arr.push(point_x(d,i));
-      arr.push(point_y(d,i));
-      return arr;
-    }
-
-    //完成的points
+        //完成的points
     function polygon_data(){
       var str='';
       for (var i = 0; i <dataset.length; i++) {
@@ -53,126 +56,14 @@ var d3radar={
       return str;
     }
 
-    //底圖
-    function polygon_back(r){
-      var str='';
-      for (var i = 0; i <dataset.length; i++) {
-        str+=(point_x(r*data_max/radius,i))+','+(point_y(r*data_max/radius,i))+' ';
-      };
-      str+=(cx)+','+(cy-r)+' ';
-      return str;
-    }
-
-    //初始的圓心點points
-    function polygon0(){
-      var str='';
-      for (var i = 0; i <n; i++) {
-        str+=cx+','+cy+' ';
-      };
-      return str;
-    }
-
-
-    var beginx=50,beginy=50,rectheight=100,rectwidth=10,margin=2;
-
-    var svg=d3.select('body')
-              .selectAll('div')
-              .selectAll('div '+str_input)
-              .append('svg')
-              .attr('width',w)
-              .attr('height',h)
-              .attr('class','new')
-              .attr('fill','white');
-
-    var g_back=svg.append('g')
-    .attr('id','bg');
-
-              //畫大圓
-              g_back
-              .append('circle')
-              .attr('cx',cx)
-              .attr('cy',cy)
-              .attr('r',radius)
-              .attr('stroke-width',2)
-              .attr('stroke','orange');
-
-              //畫多邊形底圖
-              g_back.append('polyline')
-              .attr('points',polygon_back(radius))
-              .attr('fill','#a0d8ef');
-
-              //畫多邊形底圖線
-              for (var i =0; i < 5; i++) {
-                  g_back.append('polyline')
-                  .attr('points',polygon_back(radius*i/5))
-                  .attr('stroke-width',1)
-                  .attr('stroke','#007bbb')
-                  .attr('fill','rgba(137,195,235,0)');
-              };
-
-              //畫色塊遮點多餘的線
-              for(var i=0;i<n;i++){
-              g_back.append('polyline')
-              .attr('points',cx+','+cy+' '
-                +(cx+0.9*radius*Math.sin((i+0.1)*2*Math.PI/n))+','
-                +(cy-0.9*radius*Math.cos((i+0.1)*2*Math.PI/n))+' '
-                +(cx+0.9*radius*Math.sin((i+0.9)*2*Math.PI/n))+','
-                +(cy-0.9*radius*Math.cos((i+0.9)*2*Math.PI/n))+' '
-                )
-              .attr('fill','#a0d8ef');
-
-              }
-
-              //畫中心點
-              g_back.append('circle')
-              .attr('cx',cx)
-              .attr('cy',cy)
-              .attr('r',1)
-              .attr('stroke-width',2)
-              .attr('stroke','orange');
-
-              //加字
-      var g_text=svg
-              .append('g')
-              .attr('id','mytext')
-              .selectAll('g#mytext');
-              
-              g_text
-              .data(dataname)
-              .enter()
-              .append('text')
-              .text(function(d){return d})
-              .attr('x',function(d,i){return point_x(data_max+2,i);})
-              .attr('y',function(d,i){return point_y(data_max+2,i);})
-              .style({
-                'opacity':'1',
-                'fill':'blue',
-                'font-size': '12px'});
-
-              //加值的字
-        var g_text_val=svg
-              .append('g')
-              .attr('id','mytext_val')
-              .selectAll('g#mytext_val');
-
-
-              //畫多邊形
-    var polygon=svg.append('polyline')
-              .attr('points',polygon0())
-              .attr('fill','blue')
-              .attr('opacity',0.3)
-
-              //畫字
-
-    $('#pressme').on('click',show);
-
-    //按下按鈕的動作
     var points_circle;
     var ani_circle_index=0;
     var final_circle;
+    svg=this.SVG;
+    var polygon=svg.selectAll('polyline#poly');
 
-    function show(){
-      ani_circle_index=0
+    var g_text=svg.selectAll('g#mytext');
+
               //設隨機亂數
               /*
               for (var i = dataset.length - 1; i >= 0; i--) {
@@ -206,13 +97,7 @@ var d3radar={
                 'font-size': '12px'});
 
               //更新加值的字
-              
-
-              
-    }//end show
-
     function run_circle(){
-      console.log(svg.select('g#circle_points')[0][0]);
       //如果points_circle沒有值：
       if(ani_circle_index==0){
         svg.select('g#circle_points').remove();
@@ -280,16 +165,177 @@ var d3radar={
         break;
 
       }
-
-
         ani_circle_index++;
 
 
-    }//end run_circle
+      }//end run_circle
+      return this
+
+   },
+
+   draw:function(str_input){
+    var w=this.WIDTH,h=this.HEIGHT;
+    var padding_left=this.PADDING_LEFT;
+    var padding_top=this.PADDING_TOP;
+    var radius=this.RADIUS,cx=radius+padding_left,cy=radius+padding_top;
+
+    var dataset=this.DATASET;
+    var dataname=this.DATASET_NAME;
+
+    var n=dataset.length;
+    var data_max=Math.max.apply(null,dataset);
+
+    //從d,i取得點座標
+    function point_x(d,i){
+      return cx+d/data_max*radius*Math.sin(i*2*Math.PI/n);
+    }
+
+    function point_y(d,i){
+      return cy-d/data_max*radius*Math.cos(i*2*Math.PI/n);
+    }
+
+    function points(d,i){
+      var arr=[];
+      arr.push(point_x(d,i));
+      arr.push(point_y(d,i));
+      return arr;
+    }
+
+
+
+    //底圖
+    function polygon_back(r){
+      var str='';
+      for (var i = 0; i <dataset.length; i++) {
+        str+=(point_x(r*data_max/radius,i))+','+(point_y(r*data_max/radius,i))+' ';
+      };
+      str+=(cx)+','+(cy-r)+' ';
+      return str;
+    }
+
+    //初始的圓心點points
+    function polygon0(){
+      var str='';
+      for (var i = 0; i <n; i++) {
+        str+=cx+','+cy+' ';
+      };
+      return str;
+    }
+
+
+    var beginx=50,beginy=50,rectheight=100,rectwidth=10,margin=2;
+
+    var svg=d3.select('body')
+              .selectAll('div')
+              .selectAll('div '+str_input)
+              .append('svg')
+              .attr('width',w)
+              .attr('height',h)
+              .attr('class','new')
+              .attr('fill','white');
+    this.SVG=svg;
+
+    var g_back=svg.append('g')
+    .attr('id','bg');
+
+              //畫大圓
+              g_back
+              .append('circle')
+              .attr('cx',cx)
+              .attr('cy',cy)
+              .attr('r',radius)
+              .attr('stroke-width',2)
+              .attr('stroke','orange');
+
+              //畫多邊形底圖
+              g_back.append('polyline')
+              .attr('points',polygon_back(radius))
+              .attr('fill','#a0d8ef');
+
+              //畫多邊形底圖線
+              for (var i =0; i < 5; i++) {
+                  g_back.append('polyline')
+                  .attr('points',polygon_back(radius*i/5))
+                  .attr('stroke-width',1)
+                  .attr('stroke','#007bbb')
+                  .attr('fill','rgba(137,195,235,0)');
+              };
+
+              //畫色塊遮點多餘的線
+              
+              /*
+              for(var i=0;i<n;i++){
+              g_back.append('polyline')
+              .attr('points',cx+','+cy+' '
+                +(cx+0.9*radius*Math.sin((i+0.1)*2*Math.PI/n))+','
+                +(cy-0.9*radius*Math.cos((i+0.1)*2*Math.PI/n))+' '
+                +(cx+0.9*radius*Math.sin((i+0.9)*2*Math.PI/n))+','
+                +(cy-0.9*radius*Math.cos((i+0.9)*2*Math.PI/n))+' '
+                )
+              .attr('fill','#a0d8ef');
+
+              }*/
+
+              //畫放射狀直線
+              for (var i = 0; i < n; i++) {
+                g_back.append('line')
+              .attr('x1',cx)
+              .attr('y1',cy)
+              .attr('x2',cx+radius*Math.sin((i+0.5)*2*Math.PI/n))
+              .attr('y2',cy+radius*Math.cos((i+0.5)*2*Math.PI/n))
+              .attr('stroke','#007bbb')
+              .attr('stroke-width',1);
+
+              };
+
+              //畫中心點
+              g_back.append('circle')
+              .attr('cx',cx)
+              .attr('cy',cy)
+              .attr('r',1)
+              .attr('stroke-width',2)
+              .attr('stroke','orange');
+
+              //加字
+      var g_text=svg
+              .append('g')
+              .attr('id','mytext')
+              .selectAll('g#mytext');
+
+              g_text
+              .data(dataname)
+              .enter()
+              .append('text')
+              .text(function(d){return d})
+              .attr('x',function(d,i){return point_x(data_max+2,i);})
+              .attr('y',function(d,i){return point_y(data_max+2,i);})
+              .style({
+                'opacity':'1',
+                'fill':'blue',
+                'font-size': '12px'});
+
+              //加值的字
+        var g_text_val=svg
+              .append('g')
+              .attr('id','mytext_val')
+              .selectAll('g#mytext_val');
+
+
+              //畫多邊形
+    var polygon=svg.append('polyline')
+              .attr('id','poly')
+              .attr('points',polygon0())
+              .attr('fill','blue')
+              .attr('opacity',0.3)
+
+
+
+
+
+    
+
 
     return this
   }
 
 }
-
-console.log(d3);
