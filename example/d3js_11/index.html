@@ -1,0 +1,33 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>測試</title>
+<link rel="stylesheet" href="css\style.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="css\bootstrap.css" type="text/css" media="screen" />
+<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script src="d3\d3.v3.js"></script>
+<script src="js\bootstrap.js"></script>
+<script src='js\d3radar.js'>
+
+</script>
+      
+</style>
+</head>
+<body>
+<div id="container">
+
+<button id='pressme' class='btn btn-primary dropdown-toggle'>按我</button>
+
+<div id='svg_container'>
+</div>
+
+</div>
+<script type="text/javascript">
+var d3radar=d3radar.setData([7,9,10,8,25,11,13],['str','int','exp','png','jpg','gif','fip'])
+console.log(d3radar.draw('#svg_container'));
+
+</script>
+
+</body>
+</html>
